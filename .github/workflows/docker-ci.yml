@@ -14,12 +14,14 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       packages: write
 
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
 
       - name: Extract Antigravity CLI version and metadata
         id: agy-metadata
@@ -65,3 +67,16 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Create Git Tag
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+        run: |
+          VERSION="${{ steps.agy-metadata.outputs.version }}"
+          if ! git rev-parse "v$VERSION" >/dev/null 2>&1; then
+            echo "Creating tag v$VERSION"
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git tag "v$VERSION"
+            git push origin "v$VERSION"
+          else
+            echo "Tag v$VERSION already exists"
+          fi
