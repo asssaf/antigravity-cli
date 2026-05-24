@@ -3,11 +3,22 @@ FROM debian:trixie-slim AS base
 RUN apt update
 RUN apt install -y sudo git procps curl
 
-RUN DOWNLOAD_BASE_URL=$(curl -fsSL "https://antigravity.google/cli/install.sh" | grep 'DOWNLOAD_BASE_URL=' | cut -d'"' -f2) && \
-    ARCH=$(dpkg --print-architecture) && \
-    MANIFEST=$(curl -fsSL "${DOWNLOAD_BASE_URL}/manifests/linux_${ARCH}.json") && \
-    URL=$(echo "$MANIFEST" | sed -n 's/.*"url"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p') && \
-    SHA512=$(echo "$MANIFEST" | sed -n 's/.*"sha512"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p') && \
+ARG TARGETARCH
+ARG CLI_VERSION
+ARG CLI_URL_AMD64
+ARG CLI_SHA512_AMD64
+ARG CLI_URL_ARM64
+ARG CLI_SHA512_ARM64
+
+RUN if [ "$TARGETARCH" = "amd64" ]; then \
+        URL=$CLI_URL_AMD64; \
+        SHA512=$CLI_SHA512_AMD64; \
+    elif [ "$TARGETARCH" = "arm64" ]; then \
+        URL=$CLI_URL_ARM64; \
+        SHA512=$CLI_SHA512_ARM64; \
+    else \
+        echo "Unsupported architecture: $TARGETARCH"; exit 1; \
+    fi && \
     curl -fsSL "$URL" -o antigravity.tar.gz && \
     echo "$SHA512  antigravity.tar.gz" | sha512sum -c - && \
     tar -xzvf antigravity.tar.gz antigravity && \
