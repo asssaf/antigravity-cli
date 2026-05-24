@@ -1,4 +1,5 @@
 # antigravity-cli
+[![Docker CI](https://github.com/asssaf/antigravity-cli/actions/workflows/docker-ci.yml/badge.svg)](https://github.com/asssaf/antigravity-cli/actions/workflows/docker-ci.yml)
 
 A lightweight Docker-based environment for Google's Antigravity CLI.
 
