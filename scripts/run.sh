@@ -9,7 +9,7 @@ mkdir -p "${HOME}/.gemini"
 mkdir -p "${HOME}/.gemini-keyrings"
 mkdir -p "${HOME}/.config/configstore/update-notifier-\@google"
 
-: ${IMAGE:=asssaf/agy:latest}
+: ${IMAGE:=ghcr.io/asssaf/antigravity-cli:latest}
 : ${GUEST_USER:=user}
 : ${COLORTERM:=truecolor}
 : ${TZ:="America/Los_Angeles"}
