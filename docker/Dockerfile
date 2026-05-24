@@ -1,7 +1,7 @@
 FROM debian:trixie-slim AS base
 
 RUN apt update
-RUN apt install -y sudo git procps curl dbus gnome-keyring libsecret-1-0 xdg-utils
+RUN apt install -y sudo git procps curl
 
 RUN DOWNLOAD_BASE_URL=$(curl -fsSL "https://antigravity.google/cli/install.sh" | grep 'DOWNLOAD_BASE_URL=' | cut -d'"' -f2) && \
     ARCH=$(dpkg --print-architecture) && \
