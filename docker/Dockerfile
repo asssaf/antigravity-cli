@@ -3,11 +3,15 @@ FROM debian:trixie-slim AS base
 RUN apt update
 RUN apt install -y sudo git procps curl dbus gnome-keyring libsecret-1-0 xdg-utils
 
-#ARG URL="https://antigravity.google/cli/install.sh"
-#RUN curl -fsSL "$URL" | bash -s -- -d /usr/local/bin
-
-ARG CLI_URL="https://storage.googleapis.com/antigravity-public/antigravity-cli/1.0.0-5288553236791296/linux-x64/cli_linux_x64.tar.gz"
-RUN curl -fsSLo - "$CLI_URL" | tar xzv
+RUN DOWNLOAD_BASE_URL=$(curl -fsSL "https://antigravity.google/cli/install.sh" | grep 'DOWNLOAD_BASE_URL=' | cut -d'"' -f2) && \
+    ARCH=$(dpkg --print-architecture) && \
+    MANIFEST=$(curl -fsSL "${DOWNLOAD_BASE_URL}/manifests/linux_${ARCH}.json") && \
+    URL=$(echo "$MANIFEST" | sed -n 's/.*"url"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p') && \
+    SHA512=$(echo "$MANIFEST" | sed -n 's/.*"sha512"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p') && \
+    curl -fsSL "$URL" -o antigravity.tar.gz && \
+    echo "$SHA512  antigravity.tar.gz" | sha512sum -c - && \
+    tar -xzvf antigravity.tar.gz antigravity && \
+    rm antigravity.tar.gz
 
 ARG GUEST_USER=user
 RUN echo "$GUEST_USER ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/user
