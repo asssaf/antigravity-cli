@@ -7,11 +7,48 @@ on:
   pull_request:
     branches:
       - master
-  #schedule:
-  #  - cron: '15 20 * * 2'
+  schedule:
+    - cron: '15 20 * * 2'
 
 jobs:
+  check-new-release:
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.check.outputs.should_run }}
+      version: ${{ steps.agy-metadata.outputs.version }}
+      url_amd64: ${{ steps.agy-metadata.outputs.url_amd64 }}
+      sha512_amd64: ${{ steps.agy-metadata.outputs.sha512_amd64 }}
+      url_arm64: ${{ steps.agy-metadata.outputs.url_arm64 }}
+      sha512_arm64: ${{ steps.agy-metadata.outputs.sha512_arm64 }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Extract Antigravity CLI version and metadata
+        id: agy-metadata
+        run: ./scripts/get-metadata.sh
+
+      - name: Check if tag exists
+        id: check
+        shell: bash
+        run: |
+          VERSION="${{ steps.agy-metadata.outputs.version }}"
+          if [[ "${{ github.event_name }}" == "schedule" ]]; then
+            if git ls-remote --exit-code --tags origin "refs/tags/v$VERSION" >/dev/null 2>&1; then
+              echo "Tag v$VERSION already exists. Skipping scheduled run."
+              echo "should_run=false" >> "$GITHUB_OUTPUT"
+            else
+              echo "New version $VERSION detected. Proceeding with scheduled run."
+              echo "should_run=true" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            echo "Not a scheduled run. Proceeding."
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+          fi
+
   build-and-push:
+    needs: check-new-release
+    if: needs.check-new-release.outputs.should_run == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -23,18 +60,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Extract Antigravity CLI version and metadata
-        id: agy-metadata
-        run: ./scripts/get-metadata.sh
-
       - name: Docker meta
         id: meta
-        uses: docker/metadata-action@030e881283bb7a6894de51c315a6bfe6a94e05cf # v6.0.0
+        uses: docker/metadata-action@80c7e94dd9b9319bd5eb7a0e0fe9291e23a2a2e9 # v6.1.0
         with:
           images: ghcr.io/${{ github.repository }}
           tags: |
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/master' }}
-            type=raw,value=${{ steps.agy-metadata.outputs.version }},enable=${{ github.ref == 'refs/heads/master' }}
+            type=raw,value=${{ needs.check-new-release.outputs.version }},enable=${{ github.ref == 'refs/heads/master' }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4.0.0
@@ -59,18 +92,18 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            CLI_VERSION=${{ steps.agy-metadata.outputs.version }}
-            CLI_URL_AMD64=${{ steps.agy-metadata.outputs.url_amd64 }}
-            CLI_SHA512_AMD64=${{ steps.agy-metadata.outputs.sha512_amd64 }}
-            CLI_URL_ARM64=${{ steps.agy-metadata.outputs.url_arm64 }}
-            CLI_SHA512_ARM64=${{ steps.agy-metadata.outputs.sha512_arm64 }}
+            CLI_VERSION=${{ needs.check-new-release.outputs.version }}
+            CLI_URL_AMD64=${{ needs.check-new-release.outputs.url_amd64 }}
+            CLI_SHA512_AMD64=${{ needs.check-new-release.outputs.sha512_amd64 }}
+            CLI_URL_ARM64=${{ needs.check-new-release.outputs.url_arm64 }}
+            CLI_SHA512_ARM64=${{ needs.check-new-release.outputs.sha512_arm64 }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
       - name: Create Git Tag
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
         run: |
-          VERSION="${{ steps.agy-metadata.outputs.version }}"
+          VERSION="${{ needs.check-new-release.outputs.version }}"
           if ! git rev-parse "v$VERSION" >/dev/null 2>&1; then
             echo "Creating tag v$VERSION"
             git config user.name "github-actions[bot]"
