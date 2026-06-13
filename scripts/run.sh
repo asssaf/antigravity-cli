@@ -14,7 +14,6 @@ mkdir -p "${HOME}/.config/configstore/update-notifier-\@google"
 : ${TZ:="America/Los_Angeles"}
 
 docker run --rm -it \
-        -v ${HOME}/.config/configstore/update-notifier-@google:/home/${GUEST_USER}/.config/configstore/update-notifier-@google \
         -v ${HOME}/.gemini:/home/${GUEST_USER}/.gemini \
         -v ${PWD}:/home/${GUEST_USER}/work \
         -u $(id -u):$(id -g) \
