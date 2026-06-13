@@ -6,7 +6,6 @@ set -eu
 # run.sh --prompt "what is the weather in SF?"
 
 mkdir -p "${HOME}/.gemini"
-mkdir -p "${HOME}/.config/configstore/update-notifier-\@google"
 
 : ${IMAGE:=ghcr.io/asssaf/antigravity-cli:latest}
 : ${GUEST_USER:=user}
