@@ -2,4 +2,4 @@
 
 set -euo pipefail
 
-exec /antigravity $*
+exec "/home/${GUEST_USER}/bin/antigravity" "$@"
