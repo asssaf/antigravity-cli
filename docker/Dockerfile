@@ -10,6 +10,8 @@ RUN useradd -m -u 1000 $GUEST_USER
 ENV GUEST_USER=$GUEST_USER
 ENV PATH="/home/$GUEST_USER/bin:${PATH}"
 
+COPY entrypoint.sh /
+
 USER $GUEST_USER
 WORKDIR /home/$GUEST_USER
 
@@ -36,9 +38,5 @@ RUN mkdir -p bin && \
     rm antigravity.tar.gz
 
 WORKDIR /home/$GUEST_USER/work
-
-USER root
-COPY entrypoint.sh /
-USER $GUEST_USER
 
 ENTRYPOINT ["/entrypoint.sh"]
