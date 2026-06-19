@@ -11,10 +11,18 @@ mkdir -p "${HOME}/.gemini"
 : ${GUEST_USER:=user}
 : ${COLORTERM:=truecolor}
 : ${TZ:="America/Los_Angeles"}
+: ${PROJECT:="$(basename $PWD)"}
+: ${AGY_HOST_CACHE:=""}
 
-docker run --rm -it \
+if [ -n "$AGY_HOST_CACHE" ]
+then
+	mkdir -p $AGY_HOST_CACHE || { echo "Failed to create $AGY_HOST_CACHE. Create it or set AGY_HOST_CACHE=\"\" to disable." >&2 ; exit 1; }
+fi
+
+docker run --rm -it --name "agy-${PROJECT}" \
         -v ${HOME}/.gemini:/home/${GUEST_USER}/.gemini \
         -v ${PWD}:/home/${GUEST_USER}/work \
+        ${AGY_HOST_CACHE:+-v "${AGY_HOST_CACHE}:/home/${GUEST_USER}/host-cache"} \
         -u $(id -u):$(id -g) \
         -e NO_BROWSER=true \
         -e TERM=$TERM \
