@@ -1,7 +1,7 @@
 FROM debian:trixie-slim AS base
 
 RUN apt update
-RUN apt install -y sudo git procps curl
+RUN apt install -y sudo git procps curl jq
 
 ARG GUEST_USER=user
 RUN echo "$GUEST_USER ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/user
