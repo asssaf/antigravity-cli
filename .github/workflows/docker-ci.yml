@@ -8,7 +8,7 @@ on:
     branches:
       - master
   schedule:
-    - cron: '15 20 * * 2'
+    - cron: '15 20 * * *'
 
 jobs:
   check-new-release:
