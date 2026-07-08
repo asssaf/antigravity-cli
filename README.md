@@ -5,6 +5,9 @@
 
 A lightweight, pre-configured Docker-based environment for Google's Antigravity CLI. This package eliminates setup overhead and ensures that the Antigravity agent runs in a secure, isolated, and multi-architecture environment.
 
+<img width="2506" height="522" alt="antigravity-cli2" src="https://github.com/user-attachments/assets/224e9b38-8a1f-4b62-8e70-d02e073a4835" />
+
+
 ---
 
 ## Key Features
