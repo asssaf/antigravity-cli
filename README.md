@@ -73,6 +73,12 @@ To run a configuration or initialization script (e.g., configuring developer too
 AGY_STARTUP_HOOK="scripts/dev-setup.sh" ./scripts/run.sh
 ```
 
+> [!NOTE]
+> The `AGY_STARTUP_HOOK` script is sourced directly in the container entrypoint shell, which means any environment changes (such as modifying `PATH` or setting `GOROOT`) will persist into the `antigravity` agent process.
+
+This repository supports toolchain and environment management using the **Mise** polyglot tool manager configured in [mise.toml](mise.toml). Sourcing [scripts/dev-setup.sh](scripts/dev-setup.sh) as the startup hook automatically bootstraps `mise` under `~/host-cache/mise/bin/`, installs the declared tools (such as Go, Node.js, or Elm), and activates them.
+
+
 ---
 
 ## Local Development
