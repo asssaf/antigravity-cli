@@ -40,3 +40,16 @@ RUN mkdir -p bin && \
 WORKDIR /home/$GUEST_USER/work
 
 ENTRYPOINT ["/entrypoint.sh"]
+
+
+
+FROM base AS playwright
+
+USER root
+RUN apt install -y nodejs npm
+
+USER user
+RUN npx playwright cli install-browser chrome
+
+# let the user know they can install the skill in their workspace using:
+# npx playwright cli install --skills agents
