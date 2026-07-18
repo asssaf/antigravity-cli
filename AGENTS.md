@@ -15,3 +15,7 @@ To find the latest commit hash for an action, go to the releases page in the act
 
 - The primary branch for this repository is `master`.
 - When making changes to the codebase, ensure that `README.md`  is updated if the changes are relevant to documented features.
+
+
+## Playwright
+To run playwright CLI use "npx playwright cli ..."
