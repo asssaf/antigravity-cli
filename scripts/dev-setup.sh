@@ -31,6 +31,12 @@ fi
 # 3. Export environment variables for the current shell session
 eval "$(mise env -s bash)"
 
+# 4. Install Playwright CLI if not present
+if ! command -v playwright-cli &> /dev/null; then
+    echo "Playwright CLI not found. Installing Playwright CLI..."
+    npm install -g @playwright/cli@latest
+fi
+
 echo "========================================="
 echo "Developer tool setup complete!"
 echo "========================================="
