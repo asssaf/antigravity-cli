@@ -49,7 +49,7 @@ The helper script `scripts/run.sh` can be customized using environment variables
 
 | Environment Variable | Description | Default |
 |----------------------|-------------|---------|
-| `IMAGE` | The Docker image to execute. | `ghcr.io/asssaf/antigravity-cli:latest` |
+| `IMAGE` | The Docker image to execute. Use `ghcr.io/asssaf/antigravity-cli:latest-playwright` for the Playwright-enabled version. | `ghcr.io/asssaf/antigravity-cli:latest` |
 | `AGY_HOST_CACHE` | Path to a directory on the host to mount as a persistent cache (`~/host-cache`). | *(Disabled if empty)* |
 | `AGY_STARTUP_HOOK` | Path to an executable script (e.g. `scripts/dev-setup.sh`) to run prior to launching the CLI. | *(None)* |
 | `PROJECT` | Suffix for the container name (`agy-${PROJECT}`). | Name of current directory |
@@ -104,5 +104,5 @@ IMAGE="my-local-antigravity:latest" ./scripts/build.sh
 The automated build-and-release pipeline defined in `.github/workflows/docker-ci.yml` performs the following operations:
 1. **Periodic Check**: Runs on a weekly schedule (every Tuesday) or on direct pushes to `master`.
 2. **Version Comparison**: Queries the official upstream Antigravity CLI version. If a new version is detected compared to the published tags, it triggers a release build.
-3. **Multi-Arch Compilation**: Utilizes QEMU and Docker Buildx to cross-compile the image for both `linux/amd64` and `linux/arm64`.
-4. **Publishing**: Pushes the compiled images to GitHub Container Registry (GHCR) and creates a new Git tag matching the upstream Antigravity version.
+3. **Multi-Arch Compilation**: Utilizes QEMU and Docker Buildx to cross-compile the images (both base and playwright targets) for both `linux/amd64` and `linux/arm64`.
+4. **Publishing**: Pushes the compiled images (`latest`, `latest-playwright`, and versioned tags) to GitHub Container Registry (GHCR) and creates a new Git tag matching the upstream Antigravity version.

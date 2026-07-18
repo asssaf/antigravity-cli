@@ -101,6 +101,33 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Docker meta for Playwright
+        id: meta-playwright
+        uses: docker/metadata-action@80c7e94dd9b9319bd5eb7a0e0fe9291e23a2a2e9 # v6.1.0
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=raw,value=latest-playwright,enable=${{ github.ref == 'refs/heads/master' }}
+            type=raw,value=${{ needs.check-new-release.outputs.version }}-playwright,enable=${{ github.ref == 'refs/heads/master' }}
+
+      - name: Build and push Playwright
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
+        with:
+          context: ./docker
+          platforms: linux/amd64,linux/arm64
+          target: playwright
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta-playwright.outputs.tags }}
+          labels: ${{ steps.meta-playwright.outputs.labels }}
+          build-args: |
+            CLI_VERSION=${{ needs.check-new-release.outputs.version }}
+            CLI_URL_AMD64=${{ needs.check-new-release.outputs.url_amd64 }}
+            CLI_SHA512_AMD64=${{ needs.check-new-release.outputs.sha512_amd64 }}
+            CLI_URL_ARM64=${{ needs.check-new-release.outputs.url_arm64 }}
+            CLI_SHA512_ARM64=${{ needs.check-new-release.outputs.sha512_arm64 }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
       - name: Create Git Tag
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
         run: |
