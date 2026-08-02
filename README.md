@@ -78,6 +78,43 @@ AGY_STARTUP_HOOK="scripts/dev-setup.sh" ./scripts/run.sh
 
 This repository supports toolchain and environment management using the **Mise** polyglot tool manager configured in [mise.toml](mise.toml). Sourcing [scripts/dev-setup.sh](scripts/dev-setup.sh) as the startup hook automatically bootstraps `mise` under `~/host-cache/mise/bin/`, installs the declared tools (such as Go, Node.js, or Elm), and activates them.
 
+---
+
+## Playwright Support
+
+The Antigravity agent can use `playwright-cli` to automate browser tasks, run tests, or inspect web pages. Since running standard browser instances inside the isolated CLI container is not supported, you must connect to an external Chromium remote debugging instance using the Chrome DevTools Protocol (CDP).
+
+> [!NOTE]
+> Make sure you have the `playwright-cli` skill installed, or get it from [github.com/microsoft/playwright-cli/tree/main/skills/playwright-cli](https://github.com/microsoft/playwright-cli/tree/main/skills/playwright-cli).
+
+To set this up, run a Chromium remote debugging server. There are two primary ways to run it via Docker:
+
+### 1. Exposing via socat (Port 9223)
+
+Run the container so that it exposes the remote debugging port on port 9223 using `socat`:
+
+```bash
+docker run --rm -it asssaf/chromium-remote:latest
+```
+
+Then, you can attach `playwright-cli` using:
+```bash
+playwright-cli attach --cdp=http://<IP>:9223
+```
+
+### 2. Direct Container Localhost (Port 9222)
+
+To directly access the server (only exposed on the container's localhost), you can run the Chromium container inside the same network stack as the running `antigravity-cli` container:
+
+```bash
+docker run --rm -it --network=container:${ANTIGRAVITY_CLI_CONTAINER_NAME} asssaf/chromium-remote:latest
+```
+*(Where `${ANTIGRAVITY_CLI_CONTAINER_NAME}` is the name of your active Antigravity CLI container, e.g. `agy-${PROJECT}` or `agy-antigravity-cli`)*
+
+Because the network stack is shared, the endpoint will be available directly on `localhost`:
+```bash
+playwright-cli attach --cdp=http://127.0.0.1:9222
+```
 
 ---
 
