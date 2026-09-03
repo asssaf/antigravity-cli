@@ -1,7 +1,7 @@
 FROM debian:trixie-slim AS base
 
 RUN apt update \
-	&& apt install -y sudo git procps curl jq \
+	&& apt install -y sudo git procps curl jq libatomic1 \
 	&& rm -rf /var/lib/apt/lists/*
 
 ARG GUEST_USER=user
