@@ -14,6 +14,7 @@ mkdir -p "${HOME}/.gemini"
 : ${PROJECT:="$(basename $PWD)"}
 : ${AGY_HOST_CACHE:=""}
 : ${AGY_STARTUP_HOOK:=""}
+: ${DOCKER_OPTS:=""}
 
 if [ -n "$AGY_HOST_CACHE" ]
 then
@@ -30,4 +31,5 @@ docker run --rm -it --name "agy-${PROJECT}" \
         -e COLORTERM=$COLORTERM \
         -e TZ="$TZ" \
         -e AGY_STARTUP_HOOK="${AGY_STARTUP_HOOK}" \
+        ${DOCKER_OPTS} \
         $IMAGE "$@"
